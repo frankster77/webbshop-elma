@@ -1,20 +1,19 @@
 <?php
-ob_start();
-session_start();
 include_once 'Components/ProductComponent.php';
 include_once 'Components/HeaderComponent.php';
 $header = new HeaderComponent();
 include_once 'Models/Database.php';
 $db = new Database();
-$laptops = $db->getPopularLaptops();
+$sort = $_GET['sort'] ?? 'name';
+$order = $_GET['order'] ?? 'asc';
+$laptops = $db->getLaptopsInCategory($_GET['id'] ?? '', $sort, $order);
+$selectedOption = $sort . '-' . $order;
 $laptop = $db->searchLaptops($_GET['search'] ?? '');
+
 include_once 'Components/FooterComponent.php';
 $footer = new FooterComponent();
-$cartCount = 0;
 
-if (isset($_SESSION['cartId'])) {
-    $cartCount = $db->getCartCount($_SESSION['cartId']);
-}
+$category = $db->getCategoryById($_GET['id'] ?? '');
 
 ?>
 
@@ -46,44 +45,28 @@ if (isset($_SESSION['cartId'])) {
                     </a>
 
                     <!-- Dropdown -->
-                    <?php $categories = $db->getAllCategories(); ?>
                     <ul class="absolute left-0 top-full hidden group-hover:block bg-white shadow-lg rounded w-40">
                         <li>
                             <a href="#" class="block px-4 py-2 hover:bg-gray-100 font-bold">Alla produkter</a>
                         </li>
-                        <?php foreach ($categories as $category): ?>
-                            <li>
-                                <a href="categories.php?id=<?php echo $category->id; ?>"
-                                    class="block px-4 py-2 hover:bg-gray-100"><?php echo $category->category; ?></a>
-                            </li>
-                        <?php endforeach; ?>
-
+                        <li>
+                            <a href="#" class="block px-4 py-2 hover:bg-gray-100">Datorer</a>
+                        </li>
                     </ul>
                 </li>
 
 
                 <li>
-                    <a href="accountLogin.php"
+                    <a href="#"
                         class="block py-2 px-3 text-heading rounded hover:bg-neutral-tertiary md:hover:bg-transparent md:border-1 md:hover:text-black/50 md:p-0 md:dark:hover:bg-transparent">Logga
                         in</a>
                 </li>
                 <li>
-                    <a href="accountRegister.php"
+                    <a href="#"
                         class="block py-2 px-3 text-heading rounded hover:bg-neutral-tertiary md:hover:bg-transparent md:border-0 md:hover:text-black/50 md:p-0 md:dark:hover:bg-transparent">Skapa
                         konto</a>
                 </li>
             </ul>
-            <?php if (isset($_SESSION['email'])): ?>
-                <div class="flex items-center gap-2 text-white text-base ml-8">
-                    <span class="opacity-90">
-                        <?= htmlspecialchars($_SESSION['email']) ?>
-                    </span>
-
-                    <a href="logout.php" class="text-white/80 hover:text-white underline underline-offset-2">
-                        Logga ut
-                    </a>
-                </div>
-            <?php endif; ?>
             <!-- Search Form -->
             <form method="get" action="search.php" class="max-w-md ml-auto mr-8">
                 <label for="search" class="block mb-2.5 text-sm font-medium text-heading sr-only ">Sök</label>
@@ -106,36 +89,36 @@ if (isset($_SESSION['cartId'])) {
             </form>
 
             <!-- Shopping Cart Icon -->
-            <a href="cart.php" class="relative">
-                <svg xmlns="http://www.w3.org/2000/svg" width="25" height="25" viewBox="0 0 24 24" fill="none"
-                    stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
-                    class="lucide lucide-shopping-cart-icon lucide-shopping-cart">
-                    <circle cx="8" cy="21" r="1" />
-                    <circle cx="19" cy="21" r="1" />
-                    <path d="M2.05 2.05h2l2.66 12.42a2 2 0 0 0 2 1.58h9.78a2 2 0 0 0 1.95-1.57l1.65-7.43H5.12" />
-                </svg>
-
-                <!-- Cart Count -->
-                <span id="cart-count"
-                    class="absolute -top-2 -right-3 text-xs font-medium text-black bg-white rounded-full px-1.5 py-0.5">
-                    <?= $cartCount ?>
-                </span>
-            </a>
+            <svg xmlns="http://www.w3.org/2000/svg" width="25" height="25" viewBox="0 0 24 24" fill="none"
+                stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                class="lucide lucide-shopping-cart-icon lucide-shopping-cart">
+                <circle cx="8" cy="21" r="1" />
+                <circle cx="19" cy="21" r="1" />
+                <path d="M2.05 2.05h2l2.66 12.42a2 2 0 0 0 2 1.58h9.78a2 2 0 0 0 1.95-1.57l1.65-7.43H5.12" />
+            </svg>
+            <span id="cart-count"
+                class="absolute top-0 right-0 mt-4 mr-5 text-xs font-medium text-black bg-white rounded-full px-1.5 py-0.5">0</span>
         </div>
     </nav>
 
     <?php $header->render(); ?>
 
     <!-- Popular Products Section -->
-    <h1 class="text-center text-2xl font-bold font-mono mb-4 p-10">Populära produkter</h1>
+    <h1 class="text-center text-2xl font-bold font-mono mb-4 p-10"><?php echo $category->category; ?></h1>
+    <select id="sortSelect" class="mb-4 border border-gray-400 p-2">
+        <option value="default">Sortera efter:</option>
+        <option value="name_asc" <?php echo $selectedOption === 'name-asc' ? 'selected' : ''; ?>>Namn A-Ö</option>
+        <option value="name_desc" <?php echo $selectedOption === 'name-desc' ? 'selected' : ''; ?>>Namn Ö-A</option>
+        <option value="price_asc" <?php echo $selectedOption === 'price-asc' ? 'selected' : ''; ?>>Lägsta pris</option>
+        <option value="price_desc" <?php echo $selectedOption === 'price-desc' ? 'selected' : ''; ?>>Högsta pris</option>
+    </select>
     <div class="grid grid-cols-3 gap-3">
         <?php foreach ($laptops as $laptop):
             productComponent($laptop);
         endforeach; ?>
     </div>
-    </div>
     <?php $footer->render(); ?>
-
+    <script src="Js/scripts.js"></script>
 </body>
 
 </html>

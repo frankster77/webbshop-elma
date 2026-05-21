@@ -1,20 +1,13 @@
 <?php
-ob_start();
-session_start();
+include_once 'Models/Products.php';
 include_once 'Components/ProductComponent.php';
 include_once 'Components/HeaderComponent.php';
 $header = new HeaderComponent();
 include_once 'Models/Database.php';
 $db = new Database();
-$laptops = $db->getPopularLaptops();
-$laptop = $db->searchLaptops($_GET['search'] ?? '');
+$laptop = $db->getLaptopById($_GET['id'] ?? 1);
 include_once 'Components/FooterComponent.php';
 $footer = new FooterComponent();
-$cartCount = 0;
-
-if (isset($_SESSION['cartId'])) {
-    $cartCount = $db->getCartCount($_SESSION['cartId']);
-}
 
 ?>
 
@@ -25,7 +18,7 @@ if (isset($_SESSION['cartId'])) {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <script src="https://cdn.tailwindcss.com"></script>
-    <title>Laptopshop</title>
+    <title> - Laptopshop</title>
 </head>
 
 <body>
@@ -35,7 +28,7 @@ if (isset($_SESSION['cartId'])) {
             <ul
                 class="flex flex-col p-4 md:p-0 mt-3 font-medium border border-default rounded-base md:space-x-8 rtl:space-x-reverse md:flex-row md:mt-0 md:border-0">
                 <li>
-                    <a href="/"
+                    <a href="index.php"
                         class="block py-2 px-3 text-white bg-brand rounded-sm md:bg-transparent md:hover:text-white/75 md:p-0"
                         aria-current="page">Hem</a>
                 </li>
@@ -46,44 +39,28 @@ if (isset($_SESSION['cartId'])) {
                     </a>
 
                     <!-- Dropdown -->
-                    <?php $categories = $db->getAllCategories(); ?>
                     <ul class="absolute left-0 top-full hidden group-hover:block bg-white shadow-lg rounded w-40">
                         <li>
                             <a href="#" class="block px-4 py-2 hover:bg-gray-100 font-bold">Alla produkter</a>
                         </li>
-                        <?php foreach ($categories as $category): ?>
-                            <li>
-                                <a href="categories.php?id=<?php echo $category->id; ?>"
-                                    class="block px-4 py-2 hover:bg-gray-100"><?php echo $category->category; ?></a>
-                            </li>
-                        <?php endforeach; ?>
-
+                        <li>
+                            <a href="#" class="block px-4 py-2 hover:bg-gray-100">Datorer</a>
+                        </li>
                     </ul>
                 </li>
 
 
                 <li>
-                    <a href="accountLogin.php"
+                    <a href="#"
                         class="block py-2 px-3 text-heading rounded hover:bg-neutral-tertiary md:hover:bg-transparent md:border-1 md:hover:text-black/50 md:p-0 md:dark:hover:bg-transparent">Logga
                         in</a>
                 </li>
                 <li>
-                    <a href="accountRegister.php"
+                    <a href="#"
                         class="block py-2 px-3 text-heading rounded hover:bg-neutral-tertiary md:hover:bg-transparent md:border-0 md:hover:text-black/50 md:p-0 md:dark:hover:bg-transparent">Skapa
                         konto</a>
                 </li>
             </ul>
-            <?php if (isset($_SESSION['email'])): ?>
-                <div class="flex items-center gap-2 text-white text-base ml-8">
-                    <span class="opacity-90">
-                        <?= htmlspecialchars($_SESSION['email']) ?>
-                    </span>
-
-                    <a href="logout.php" class="text-white/80 hover:text-white underline underline-offset-2">
-                        Logga ut
-                    </a>
-                </div>
-            <?php endif; ?>
             <!-- Search Form -->
             <form method="get" action="search.php" class="max-w-md ml-auto mr-8">
                 <label for="search" class="block mb-2.5 text-sm font-medium text-heading sr-only ">Sök</label>
@@ -106,33 +83,38 @@ if (isset($_SESSION['cartId'])) {
             </form>
 
             <!-- Shopping Cart Icon -->
-            <a href="cart.php" class="relative">
-                <svg xmlns="http://www.w3.org/2000/svg" width="25" height="25" viewBox="0 0 24 24" fill="none"
-                    stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
-                    class="lucide lucide-shopping-cart-icon lucide-shopping-cart">
-                    <circle cx="8" cy="21" r="1" />
-                    <circle cx="19" cy="21" r="1" />
-                    <path d="M2.05 2.05h2l2.66 12.42a2 2 0 0 0 2 1.58h9.78a2 2 0 0 0 1.95-1.57l1.65-7.43H5.12" />
-                </svg>
-
-                <!-- Cart Count -->
-                <span id="cart-count"
-                    class="absolute -top-2 -right-3 text-xs font-medium text-black bg-white rounded-full px-1.5 py-0.5">
-                    <?= $cartCount ?>
-                </span>
-            </a>
+            <svg xmlns="http://www.w3.org/2000/svg" width="25" height="25" viewBox="0 0 24 24" fill="none"
+                stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                class="lucide lucide-shopping-cart-icon lucide-shopping-cart">
+                <circle cx="8" cy="21" r="1" />
+                <circle cx="19" cy="21" r="1" />
+                <path d="M2.05 2.05h2l2.66 12.42a2 2 0 0 0 2 1.58h9.78a2 2 0 0 0 1.95-1.57l1.65-7.43H5.12" />
+            </svg>
+            <span id="cart-count"
+                class="absolute top-0 right-0 mt-4 mr-5 text-xs font-medium text-black bg-white rounded-full px-1.5 py-0.5">0</span>
         </div>
     </nav>
 
-    <?php $header->render(); ?>
+    <!-- Product Details Section -->
+    <div class="max-w-5xl mx-auto mt-32 px-2">
+        <div class="bg-white rounded-2xl shadow-lg p-8 md:p-12 flex flex-col md:flex-row gap-10 min-h-[700px]">
+            <div class="flex-1 flex items-center justify-center">
+                <img src="<?php echo $laptop->imgUrl; ?>" alt="<?php echo $laptop->name; ?>"
+                    class="w-90 object-cover rounded-lg shadow-md" />
+            </div>
+            <div class="flex-1 flex flex-col justify-center">
 
-    <!-- Popular Products Section -->
-    <h1 class="text-center text-2xl font-bold font-mono mb-4 p-10">Populära produkter</h1>
-    <div class="grid grid-cols-3 gap-3">
-        <?php foreach ($laptops as $laptop):
-            productComponent($laptop);
-        endforeach; ?>
-    </div>
+                <h1 class="text-3xl font-bold mb-6"><?php echo $laptop->name; ?></h1>
+                <p class="text-lg text-gray-600 mb-6 leading-relaxed"><?php echo $laptop->description; ?></p>
+                <p class="text-2xl font-bold text-violet-500 mb-4"><?php echo $laptop->price; ?> kr</p>
+                <button
+                    class="bg-violet-400 hover:bg-violet-500 text-white px-6 py-3 rounded-lg font-medium transition shadow-md w-full md:w-auto">
+                    Lägg i varukorg
+                </button>
+
+            </div>
+
+        </div>
     </div>
     <?php $footer->render(); ?>
 
