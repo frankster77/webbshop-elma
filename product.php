@@ -8,6 +8,9 @@ $db = new Database();
 $laptop = $db->getLaptopById($_GET['id'] ?? 1);
 include_once 'Components/FooterComponent.php';
 $footer = new FooterComponent();
+if (isset($_SESSION['cartId'])) {
+    $cartCount = $db->getCartCount($_SESSION['cartId']);
+}
 
 ?>
 
@@ -83,15 +86,21 @@ $footer = new FooterComponent();
             </form>
 
             <!-- Shopping Cart Icon -->
-            <svg xmlns="http://www.w3.org/2000/svg" width="25" height="25" viewBox="0 0 24 24" fill="none"
-                stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
-                class="lucide lucide-shopping-cart-icon lucide-shopping-cart">
-                <circle cx="8" cy="21" r="1" />
-                <circle cx="19" cy="21" r="1" />
-                <path d="M2.05 2.05h2l2.66 12.42a2 2 0 0 0 2 1.58h9.78a2 2 0 0 0 1.95-1.57l1.65-7.43H5.12" />
-            </svg>
-            <span id="cart-count"
-                class="absolute top-0 right-0 mt-4 mr-5 text-xs font-medium text-black bg-white rounded-full px-1.5 py-0.5">0</span>
+            <a href="cart.php" class="relative">
+                <svg xmlns="http://www.w3.org/2000/svg" width="25" height="25" viewBox="0 0 24 24" fill="none"
+                    stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                    class="lucide lucide-shopping-cart-icon lucide-shopping-cart">
+                    <circle cx="8" cy="21" r="1" />
+                    <circle cx="19" cy="21" r="1" />
+                    <path d="M2.05 2.05h2l2.66 12.42a2 2 0 0 0 2 1.58h9.78a2 2 0 0 0 1.95-1.57l1.65-7.43H5.12" />
+                </svg>
+
+                <!-- Cart Count -->
+                <span id="cart-count"
+                    class="absolute -top-2 -right-3 text-xs font-medium text-black bg-white rounded-full px-1.5 py-0.5">
+                    <?= $cartCount ?>
+                </span>
+            </a>
         </div>
     </nav>
 
@@ -107,10 +116,17 @@ $footer = new FooterComponent();
                 <h1 class="text-3xl font-bold mb-6"><?php echo $laptop->name; ?></h1>
                 <p class="text-lg text-gray-600 mb-6 leading-relaxed"><?php echo $laptop->description; ?></p>
                 <p class="text-2xl font-bold text-violet-500 mb-4"><?php echo $laptop->price; ?> kr</p>
-                <button
-                    class="bg-violet-400 hover:bg-violet-500 text-white px-6 py-3 rounded-lg font-medium transition shadow-md w-full md:w-auto">
-                    Lägg i varukorg
-                </button>
+
+                <form action="addToCart.php" method="POST">
+
+                    <input type="hidden" name="productId" value="<?php echo $laptop->id; ?>">
+
+                    <button type="submit"
+                        class="bg-violet-400 text-white px-6 py-2 rounded-full font-medium hover:bg-violet-500 transition">
+                        Lägg i varukorg
+                    </button>
+
+                </form>
 
             </div>
 

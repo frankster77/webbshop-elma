@@ -10,7 +10,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     $db = new Database();
     $cartId = $_SESSION['cartId'] ?? $db->createCart($_SESSION['userId']);
-    echo $_SESSION['cartId'] ;
+    echo $_SESSION['cartId'];
     $_SESSION['cartId'] = $cartId;
 
 

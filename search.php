@@ -46,10 +46,10 @@ $footer = new FooterComponent();
                         konto</a>
                 </li>
             </ul>
-        <!-- Search Form -->
-                  <form method="get" action="search.php" class="max-w-md ml-auto mr-8">
-                    <label for="search" class="block mb-2.5 text-sm font-medium text-heading sr-only ">Sök</label>
-                    <!-- Search Icon -->
+            <!-- Search Form -->
+            <form method="get" action="search.php" class="max-w-md ml-auto mr-8">
+                <label for="search" class="block mb-2.5 text-sm font-medium text-heading sr-only ">Sök</label>
+                <!-- Search Icon -->
                 <div class="relative">
                     <div class="absolute inset-y-0 start-0 flex items-center ps-3 pointer-events-none">
                         <svg class="w-4 h-4 text-body" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24"
@@ -65,7 +65,7 @@ $footer = new FooterComponent();
                     <button type="submit"
                         class="absolute end-1.5 bottom-1.5 text-white bg-violet-400 hover:bg-violet-500 box-border border border-transparent focus:ring-4 focus:ring-brand-medium shadow-xs font-medium leading-5 rounded text-xs px-3 py-1.5 focus:outline-none">Sök</button>
                 </div>
-            </form> 
+            </form>
 
             <!-- Shopping Cart Icon -->
             <svg xmlns="http://www.w3.org/2000/svg" width="25" height="25" viewBox="0 0 24 24" fill="none"
@@ -85,8 +85,8 @@ $footer = new FooterComponent();
     <!-- Popular Products Section -->
     <h1 class="text-center text-2xl font-bold font-mono mb-4 p-10">Resultat för: <?php echo $_GET['search'] ?></h1>
     <div class="grid grid-cols-3 gap-3">
-        <?php foreach ($laptops as $laptop): 
-            productComponent($laptop); 
+        <?php foreach ($laptops as $laptop):
+            productComponent($laptop);
         endforeach; ?>
     </div>
     <?php $footer->render(); ?>
