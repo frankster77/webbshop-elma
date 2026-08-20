@@ -5,8 +5,33 @@ include_once 'Models/Database.php';
 $db = new Database();
 $cartItems = [];
 if (isset($_SESSION['cartId'])) {
-    $cartItems = $db->getCartItems($_SESSION['cartId']);
+    $cartId = $_SESSION['cartId'];
+    $cartItems = $db->getCartItems($cartId);
+    $freightId = $_GET['freightId'] ?? null;
+    $freightCost = 0;
+
+    $totalWeight = $db->getTotalWeight($cartId);
+    $cartTotal = $db->getCartTotal($cartId);
+
+    if ($freightId) {
+        $freightRule = $db->getShippingOption($freightId);
+        if (
+            $freightRule->free_shipping_threshold > 0 &&
+            $cartTotal >= $freightRule->free_shipping_threshold
+        ) {
+            $freightCost = 0;
+        } else {
+            $freightCost = $freightRule->base_fee +
+                ($freightRule->weight_modifier * $totalWeight);
+        }
+
+    } else {
+        $freightRule = null;
+    }
+
 }
+
+
 
 ?>
 <!DOCTYPE html>
@@ -18,6 +43,7 @@ if (isset($_SESSION['cartId'])) {
     <script src="https://cdn.tailwindcss.com"></script>
     <title>Varukorg</title>
 </head>
+
 
 <body>
     <div class="min-h-screen flex justify-center items-center bg-gray-100">
@@ -49,7 +75,7 @@ if (isset($_SESSION['cartId'])) {
 
 
                                         <!-- Minus -->
-                                        <a href="updateQuantity.php?action=minus&productId=<?= $item['productId'] ?>"
+                                        <a onclick="updateQuantity(<?= $item['productId'] ?>, 'minus')"
                                             class=" hover:bg-violet-100 px-3 py-1 rounded-l-xl">
                                             -
                                         </a>
@@ -60,7 +86,7 @@ if (isset($_SESSION['cartId'])) {
                                         </span>
 
                                         <!-- Plus -->
-                                        <a href="updateQuantity.php?action=plus&productId=<?= $item['productId'] ?>"
+                                        <a onclick="updateQuantity(<?= $item['productId'] ?>, 'plus')"
                                             class="hover:bg-violet-100 px-3 py-1 rounded-r-xl">
                                             +
                                         </a>
@@ -90,22 +116,106 @@ if (isset($_SESSION['cartId'])) {
                 <?php endforeach; ?>
 
             </div>
+            <p>
+                Vikt: <?= $db->getTotalWeight($_SESSION['cartId']) ?> kg
+            </p>
+            <select class="w-full border border-gray-300 rounded-lg p-3 mt-6">
+                <option value="">Välj fraktalternativ</option>
+                <?php
+                $freightRules = $db->getShippingOptions();
+                foreach ($freightRules as $rule) {
+                    $isSelected = ($rule->id == $freightId) ? "selected" : "";
+                    echo "<option $isSelected value='$rule->id'>$rule->zone_name - $rule->base_fee kr + $rule->weight_modifier kr/kg</option>";
+                }
+                ?>
+            </select>
 
-            <?php if (isset($_SESSION['cartId'])): ?>
-                <div class="cart-total text-xl font-bold p-3">
-                    <h2>
-                        Totalt: <?= $db->getCartTotal($_SESSION['cartId']) ?> kr
-                    </h2>
+            <div class="mt-6 border-t pt-6">
+
+                <h2 class="font-light text-lg mb-2">Totalpris</h2>
+                <div class="flex items-center gap-7 mb-4">
+
+                    <p id="conversion-result" class="text-xl font-bold">
+                        <?= number_format($db->getCartTotal($_SESSION['cartId']) + $freightCost, 2) ?> SEK
+                    </p>
+
+                    <select id="currency" class="border border-gray-300 rounded-lg p-2">
+                        <option value="SEK">SEK</option>
+                        <option value="USD">USD</option>
+                        <option value="EUR">EUR</option>
+                    </select>
                 </div>
-            <?php endif; ?>
-            <div class="flex justify-center">
-            <section
-                class="bg-violet-400 text-white px-3 py-4 rounded-full w-50 text-center font-medium hover:bg-violet-500">
-                Fortsätt till betalning -> Ej tillgänglig
-            </section>
+            </div>
+            <div class="flex justify-center mt-4">
+                <form action="checkout.php" method="POST">
+                    <button
+                        class="bg-violet-400 text-white px-3 py-4 rounded-full w-50 text-center font-medium hover:bg-violet-500">
+                        Fortsätt till betalning
+                    </button>
+                </form>
 
             </div>
+
     </div>
+    </div>
+    <script>
+        document.querySelector("select").addEventListener("change", async function () {
+            updateQuantity(null, "freightChange");
+
+            // här ska du uppdatera totalsumman i UI
+        });
+        function updateQuantity(productId, action) {
+            // Logik för att hantera klick på produkt
+            if (action === "plus") {
+                window.location.href = "updateQuantity.php?action=plus&productId=" + productId + "&freightId=" +
+                    document.querySelector("select").value;
+            } else if (action === "minus") {
+                window.location.href = "updateQuantity.php?action=minus&productId=" + productId + "&freightId=" +
+                    document.querySelector("select").value;
+            } else if (action === "freightChange") {
+                window.location.href = "cart.php?freightId=" + document.querySelector("select").value;
+            }
+        }
+    </script>
+    <script>
+        const amount = <?= $db->getCartTotal($_SESSION['cartId']) + $freightCost ?>;
+        const currency = document.getElementById("currency");
+        const result = document.getElementById("conversion-result");
+
+        const APP_ID = "2a6ed835dc0d45b4a340b58ab81f91b5";
+
+        async function convertCurrency() {
+            const selectedCurrency = currency.value;
+
+            if (selectedCurrency === "SEK") {
+                result.textContent = amount.toFixed(2) + " SEK";
+                return;
+            }
+
+            try {
+                const response = await fetch(
+                    `https://openexchangerates.org/api/latest.json?app_id=${APP_ID}`
+                );
+
+                const data = await response.json();
+
+                const converted =
+                    amount * (data.rates[selectedCurrency] / data.rates.SEK);
+
+                result.textContent =
+                    converted.toFixed(2) + " " + selectedCurrency;
+
+            } catch (error) {
+                console.error(error);
+                result.textContent = "Kunde inte konvertera valutan.";
+            }
+        }
+
+        currency.addEventListener("change", convertCurrency);
+
+        convertCurrency();
+    </script>
+</body>
 </body>
 
 </html>
