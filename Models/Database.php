@@ -96,7 +96,7 @@ class Database
 
     function addToCart($cartId, $productId)
     {
- 
+
         $query = $this->pdo->prepare("INSERT INTO CartItem (cartId, productId, quantity) VALUES (:cartId, :productId, 1) ON DUPLICATE KEY UPDATE quantity = quantity + 1");
         $query->execute([
             'cartId' => $cartId,
@@ -160,6 +160,12 @@ class Database
         return $this->usersDatabase;
     }
 
+    function clearCart($cartId)
+    {
+        $query = $this->pdo->prepare("DELETE FROM CartItem WHERE cartId = :cartId");
+        $query->execute(['cartId' => $cartId]);
+    }
+
     function addUserDetails($id, $streetaddress, $name, $postalCode, $city)
     {
         $query = $this->pdo->prepare("INSERT INTO UserDetails (id, streetaddress, name, postalCode, city) VALUES (:id, :streetaddress, :name, :postalCode, :city)");
@@ -171,7 +177,43 @@ class Database
             "city" => $city
         ]);
     }
+
+    function updateFreightRule($zoneCode, $zoneName, $baseFee, $weightMultiplier, $freeShippingThreshold)
+    {
+        $query = $this->pdo->prepare("INSERT INTO freight_rules (zone_code, zone_name, base_fee, weight_modifier, free_shipping_threshold) VALUES (:zone_code, :zone_name, :base_fee, :weight_multiplier, :free_shipping_threshold) ON DUPLICATE KEY UPDATE zone_name = :zone_name, base_fee = :base_fee, weight_modifier = :weight_multiplier, free_shipping_threshold = :free_shipping_threshold");
+        $query->execute([
+            'zone_code' => $zoneCode,
+            'zone_name' => $zoneName,
+            'base_fee' => $baseFee,
+            'weight_multiplier' => $weightMultiplier,
+            'free_shipping_threshold' => $freeShippingThreshold
+        ]);
+    }
+
+    function getShippingOptions()
+    {
+        $query = $this->pdo->prepare("SELECT * FROM freight_rules");
+        $query->execute();
+
+        return $query->fetchAll(PDO::FETCH_OBJ);
+    }
+
+    function getShippingOption($id)
+    {
+        $query = $this->pdo->prepare("SELECT * FROM freight_rules WHERE id = :id");
+        $query->execute(['id' => $id]);
+
+        return $query->fetch(PDO::FETCH_OBJ);
+    }
+
+    function getTotalWeight($cartId)
+    {
+        $query = $this->pdo->prepare("SELECT SUM(Laptops.weight * CartItem.quantity) AS total_weight FROM CartItem JOIN Laptops ON CartItem.productId = Laptops.id WHERE CartItem.cartId = :cartId");
+        $query->execute(['cartId' => $cartId]);
+
+        return $query->fetch(PDO::FETCH_ASSOC)['total_weight'] ?? 0;
+    }
+
+
+
 }
-
-
-

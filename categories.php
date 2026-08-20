@@ -1,4 +1,6 @@
 <?php
+ob_start();
+session_start();
 include_once 'Components/ProductComponent.php';
 include_once 'Components/HeaderComponent.php';
 $header = new HeaderComponent();
@@ -60,16 +62,27 @@ $category = $db->getCategoryById($_GET['id'] ?? '');
 
 
                 <li>
-                    <a href="#"
+                    <a href="accountLogin.php"
                         class="block py-2 px-3 text-heading rounded hover:bg-neutral-tertiary md:hover:bg-transparent md:border-1 md:hover:text-black/50 md:p-0 md:dark:hover:bg-transparent">Logga
                         in</a>
                 </li>
                 <li>
-                    <a href="#"
+                    <a href="accountRegister.php"
                         class="block py-2 px-3 text-heading rounded hover:bg-neutral-tertiary md:hover:bg-transparent md:border-0 md:hover:text-black/50 md:p-0 md:dark:hover:bg-transparent">Skapa
                         konto</a>
                 </li>
             </ul>
+            <?php if (isset($_SESSION['email'])): ?>
+                <div class="flex items-center gap-2 text-white text-base ml-8">
+                    <span class="opacity-90">
+                        <?= htmlspecialchars($_SESSION['email']) ?>
+                    </span>
+
+                    <a href="logout.php" class="text-white/80 hover:text-white underline underline-offset-2">
+                        Logga ut
+                    </a>
+                </div>
+            <?php endif; ?>
             <!-- Search Form -->
             <form method="get" action="search.php" class="max-w-md ml-auto mr-8">
                 <label for="search" class="block mb-2.5 text-sm font-medium text-heading sr-only ">Sök</label>

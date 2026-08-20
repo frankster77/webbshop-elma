@@ -10,10 +10,11 @@ class Product
     public $imgUrl;
     public $description;
 
-   
+    public $weight;
+
 }
 
 class Laptop extends Product
 {
-   
+
 }

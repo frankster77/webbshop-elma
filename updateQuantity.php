@@ -46,6 +46,12 @@ if (isset($_GET['productId']) && isset($_GET['action']) && isset($_SESSION['cart
     }
 }
 
-header("Location: cart.php");
+
+// get selected freight option
+$freightId = $_GET['freightId'] ?? null;
+
+
+
+header("Location: cart.php?freightId=" . $freightId);
 exit();
 ?>

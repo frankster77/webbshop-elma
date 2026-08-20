@@ -36,12 +36,12 @@ $footer = new FooterComponent();
                         class="block py-2 px-3 text-heading rounded hover:bg-neutral-tertiary md:hover:bg-transparent md:border-0 md:hover:text-black/50 md:p-0 md:dark:hover:bg-transparent">Produkter</a>
                 </li>
                 <li>
-                    <a href="#"
+                    <a href="accountLogin.php"
                         class="block py-2 px-3 text-heading rounded hover:bg-neutral-tertiary md:hover:bg-transparent md:border-0 md:hover:text-black/50 md:p-0 md:dark:hover:bg-transparent">Logga
                         in</a>
                 </li>
                 <li>
-                    <a href="#"
+                    <a href="accountRegister.php"
                         class="block py-2 px-3 text-heading rounded hover:bg-neutral-tertiary md:hover:bg-transparent md:border-0 md:hover:text-black/50 md:p-0 md:dark:hover:bg-transparent">Skapa
                         konto</a>
                 </li>

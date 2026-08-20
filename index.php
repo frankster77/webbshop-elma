@@ -89,38 +89,38 @@ if (isset($_SESSION['cartId'])) {
                 <label for="search" class="block mb-2.5 text-sm font-medium text-heading sr-only ">Sök</label>
                 <!-- Search Icon -->
                 <div class="relative">
-                    <div class="absolute inset-y-0 start-0 flex items-center ps-3 pointer-events-none">
-                        <svg class="w-4 h-4 text-body" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24"
-                            height="24" fill="none" viewBox="0 0 24 24">
-                            <path stroke="currentColor" stroke-linecap="round" stroke-width="2"
-                                d="m21 21-3.5-3.5M17 10a7 7 0 1 1-14 0 7 7 0 0 1 14 0Z" />
-                        </svg>
+                        <div class="absolute inset-y-0 start-0 flex items-center ps-3 pointer-events-none">
+                            <svg class="w-4 h-4 text-body" aria-hidden="true" xmlns="http://www.w3.org/2000/svg"
+                                width="24" height="24" fill="none" viewBox="0 0 24 24">
+                                <path stroke="currentColor" stroke-linecap="round" stroke-width="2"
+                                    d="m21 21-3.5-3.5M17 10a7 7 0 1 1-14 0 7 7 0 0 1 14 0Z" />
+                            </svg>
+                        </div>
+                        <!-- Search Input -->
+                        <input type="search" name="search" id="search"
+                            class="block w-full p-3 ps-10 bg-neutral-secondary-medium border border-default-medium text-heading text-sm rounded-lg focus:ring-brand focus:border-brand shadow-xs placeholder:text-body"
+                            placeholder="Sök" required />
+                        <button type="submit"
+                            class="absolute end-1.5 bottom-1.5 text-white bg-violet-400 hover:bg-violet-500 box-border border border-transparent focus:ring-4 focus:ring-brand-medium shadow-xs font-medium leading-5 rounded text-xs px-3 py-1.5 focus:outline-none">Sök</button>
                     </div>
-                    <!-- Search Input -->
-                    <input type="search" name="search" id="search"
-                        class="block w-full p-3 ps-10 bg-neutral-secondary-medium border border-default-medium text-heading text-sm rounded-lg focus:ring-brand focus:border-brand shadow-xs placeholder:text-body"
-                        placeholder="Sök" required />
-                    <button type="submit"
-                        class="absolute end-1.5 bottom-1.5 text-white bg-violet-400 hover:bg-violet-500 box-border border border-transparent focus:ring-4 focus:ring-brand-medium shadow-xs font-medium leading-5 rounded text-xs px-3 py-1.5 focus:outline-none">Sök</button>
-                </div>
-            </form>
+                </form>
 
-            <!-- Shopping Cart Icon -->
-            <a href="cart.php" class="relative">
-                <svg xmlns="http://www.w3.org/2000/svg" width="25" height="25" viewBox="0 0 24 24" fill="none"
-                    stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
-                    class="lucide lucide-shopping-cart-icon lucide-shopping-cart">
-                    <circle cx="8" cy="21" r="1" />
-                    <circle cx="19" cy="21" r="1" />
-                    <path d="M2.05 2.05h2l2.66 12.42a2 2 0 0 0 2 1.58h9.78a2 2 0 0 0 1.95-1.57l1.65-7.43H5.12" />
-                </svg>
+                <!-- Shopping Cart Icon -->
+                <a href="cart.php" class="relative">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="25" height="25" viewBox="0 0 24 24" fill="none"
+                        stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                        class="lucide lucide-shopping-cart-icon lucide-shopping-cart">
+                        <circle cx="8" cy="21" r="1" />
+                        <circle cx="19" cy="21" r="1" />
+                        <path d="M2.05 2.05h2l2.66 12.42a2 2 0 0 0 2 1.58h9.78a2 2 0 0 0 1.95-1.57l1.65-7.43H5.12" />
+                    </svg>
 
-                <!-- Cart Count -->
-                <span id="cart-count"
-                    class="absolute -top-2 -right-3 text-xs font-medium text-black bg-white rounded-full px-1.5 py-0.5">
-                    <?= $cartCount ?>
-                </span>
-            </a>
+                    <!-- Cart Count -->
+                    <span id="cart-count"
+                        class="absolute -top-2 -right-3 text-xs font-medium text-black bg-white rounded-full px-1.5 py-0.5">
+                        <?= $cartCount ?>
+                    </span>
+                </a>
         </div>
     </nav>
 

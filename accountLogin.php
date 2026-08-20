@@ -1,5 +1,6 @@
 <?php
 ob_start();
+session_start();
 error_reporting(E_ALL & ~E_DEPRECATED);
 include_once('Models/Database.php');
 # trick to execute 1st time, but not 2nd so you don't have an inf loop
@@ -17,6 +18,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $auth->login($email, $password);
 
         $_SESSION['email'] = $email;
+
 
         header("Location: /");
         exit;
